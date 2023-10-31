@@ -18,4 +18,6 @@ add_executable(ASTP_BF_B_B_DP
         Write_to_csv.cpp
         Write_to_csv.h
         Data_generator.h
-        Data_generator.cpp)
+        Data_generator.cpp
+        Dynamic_programming.h
+        Dynamic_programming.cpp)
