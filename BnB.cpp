@@ -1,23 +1,15 @@
-#include <iostream>
-#include <vector>
-#include <algorithm>
-#include <climits>
-#include <set>
-
 #include "BnB.h"
 
-BnB::BnB(std::vector<std::vector<int>> graph_matrix) {
+BnB::BnB(std::vector<std::vector<int>> graph_graph) {
 
-    this->graph = graph_matrix;
+    this->graph = graph_graph;
+    this->graph_size = graph.size();
     available_vertexes();
     upper_bound_path.push_back(0);
     upper_bound_value = perform_upper_bound();
-    lower_bound_value = perform_lower_bound();
-
-    std::cout << "lower bound: " << lower_bound_value << "\n";
-    std::cout << "upper bound: " << upper_bound_value << "\n";
 
 }
+
 
 int BnB::perform_upper_bound() {
 
@@ -57,47 +49,111 @@ void BnB::available_vertexes() {
 
 }
 
-int BnB::perform_lower_bound() {
 
-    int n = graph.size();
-    std::vector<std::vector<int>> mst(n, std::vector<int>(n, 0)); // Initialize MST matrix with zeros
-    std::vector<int> key(n, INT_MAX); // Key values used to pick minimum weight edge in cut
-    std::vector<bool> inMST(n, false); // To represent set of vertices included in MST
+std::vector<int> BnB::bnb_dfs() {
 
-    // Start with the first node
-    key[1] = 0;
-    int mstCost = 0; // Total cost of MST
+    std::vector<int> vertices_to_check;
 
-    // Construct MST with (n-1) edges
-    for (int count = 0; count < n; ++count) {
-        // Find the minimum key vertex from the set of vertices not yet included in MST
-        int u = -1;
-
-        for (int i = 0; i < n; ++i) {
-            if (!inMST[i] && (u == -1 || key[i] < key[u])) {
-                u = i;
-            }
-        }
-
-        // Include the picked vertex in MST
-        inMST[u] = true;
-        if (key[u] != 0) {
-            mstCost += key[u];
-        }
-        // Add the key value to MST cost
-
-        // Update key values according to the chosen vertex
-        for (int v = 0; v < n; ++v) {
-            if (graph[u][v] != 0 && !inMST[v] && graph[u][v] < key[v]) {
-                key[v] = graph[u][v];
-                mst[u][v] = graph[u][v];
-                mst[v][u] = graph[v][u];
-            }
-        }
+    for (int i = 1; i < graph_size; i++) {
+        vertices_to_check.push_back(i);
     }
-    minimal_spanning_tree = mst;
-    return mstCost;
+
+    std::vector<int> route;
+
+    route.push_back(0);
+
+    bnb_dfs_recursion(vertices_to_check, route);
+
+    for (int i = 0; i < graph_size; i++) {
+        best_route[i] = best_route[i];
+    }
+
+    return best_route;
 
 }
 
+void BnB::bnb_dfs_recursion(std::vector<int> vertices_to_check, std::vector<int> current_route) {
 
+    std::vector<int> next_route = current_route;
+    std::vector<int> next_vertices_to_check = vertices_to_check;
+
+    int lower_bound=0, min_in_row=0;
+
+    if (vertices_to_check.size() > 0) {
+        for (int i = 0; i < vertices_to_check.size(); i++) {
+            next_route.push_back(vertices_to_check[i]);
+            next_vertices_to_check.erase(next_vertices_to_check.begin() + i);
+
+
+            for (int j = 0; j < next_route.size() - 1; j++) {
+                lower_bound += graph[next_route[j]][next_route[j + 1]];
+            }
+
+
+            if (next_vertices_to_check.size() > 0) {
+                min_in_row = graph[next_route[next_route.size() - 1]][next_vertices_to_check[0]];
+
+                for (int j = 0; j < vertices_to_check.size(); j++) {
+                    if ((min_in_row > graph[next_route[next_route.size() - 1]][vertices_to_check[j]]) && (graph[next_route[next_route.size() - 1]][vertices_to_check[j]] != -1)) {
+                        min_in_row = graph[next_route[next_route.size() - 1]][vertices_to_check[j]];
+                    }
+                }
+
+                lower_bound += min_in_row;
+            }
+
+            for (int j = 0; j < next_vertices_to_check.size(); j++) {
+                min_in_row = graph[next_vertices_to_check[j]][0];
+                for (int k = 0; k < next_vertices_to_check.size(); k++) {
+                    if ((graph[next_vertices_to_check[j]][next_vertices_to_check[k]] < min_in_row) && graph[next_vertices_to_check[j]][next_vertices_to_check[k]] != -1) {
+                        min_in_row = graph[next_vertices_to_check[j]][next_vertices_to_check[k]];
+                    }
+                }
+                lower_bound += min_in_row;
+            }
+
+            if (lower_bound < upper_bound_value) {
+                bnb_dfs_recursion(next_vertices_to_check, next_route);
+            }
+
+
+            next_route = current_route;
+            next_vertices_to_check = vertices_to_check;
+            lower_bound = 0;
+        }
+    }
+    else {
+
+        lower_bound = distance(current_route, current_route.size());
+
+        if (lower_bound < upper_bound_value) {
+            upper_bound_value = lower_bound;
+            best_route = current_route;
+        }
+    }
+
+}
+
+int BnB::distance(std::vector<int> route, int route_size) {
+
+    int sum = 0;
+
+    for (int i = 0; i < route_size-1; i++) {
+        sum += graph[route[i]][route[i+1]];
+    }
+    sum += graph[route[route_size - 1]][route[0]];
+
+    return sum;
+
+}
+
+void BnB::show_lowest_path() {
+
+    std::cout << "BNB shortest path: \n";
+    for (int i = 0; i < this->graph_size; i++) {
+        std::cout << (best_route[i]) << " -> ";
+    }
+    std::cout << "0\n";
+    std::cout << "Cost = " << upper_bound_value << "\n";
+
+}

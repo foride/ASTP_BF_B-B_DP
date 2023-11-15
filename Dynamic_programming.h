@@ -1,20 +1,41 @@
 #ifndef ASTP_BF_B_B_DP_DYNAMIC_PROGRAMMING_H
 #define ASTP_BF_B_B_DP_DYNAMIC_PROGRAMMING_H
 
-#include <vector>
 #include <string>
-#include <unordered_map>
+#include <vector>
+#include <iostream>
+#include <fstream>
+#include <algorithm>
+#include <iomanip>
 
 class Dynamic_programming {
 
 public:
+
     Dynamic_programming(std::vector<std::vector<int>> graph_matrix);
-    int perform_dp(int k, std::vector<int> unvisited, std::string current_path);
-    std::unordered_map<std::string, int> get_calulated_path_cost_map();
+
+    std::vector<int> dp();
+
+    int dp_recursion(int mask, int current_vertex);
+    void show_lowest_path();
+    std::vector<int> get_path();
+    std::string get_path_string();
 
 private:
-    std::vector<std::vector<int>> graph;
-    std::unordered_map<std::string, int> calculated_path_cost_map;
+
+    int instance_size;
+
+    std::vector<std::vector<int>> parents_memory;
+
+    std::vector<std::vector<int>> matrix;
+
+    int IMAX = INT_MAX;
+
+    int visited_all{};
+
+    std::vector<std::vector<int>> dp_memory;
+    std::vector<int> best_route;
+    int lowest_path_cost{};
 
 };
 

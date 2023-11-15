@@ -3,7 +3,7 @@
 #include <vector>
 #include "Write_to_csv.h"
 
-Write_to_csv::Write_to_csv(std::string graph_name, std::string path, int path_weight, long long int time, int number_of_repeats) {
+Write_to_csv::Write_to_csv(std::string graph_name, std::string path, int path_weight, long long time, int number_of_repeats) {
 
     this->graph_name = graph_name;
     this->path = path;
@@ -35,5 +35,6 @@ void Write_to_csv::save_results(std::string results_file_name, std::vector<std::
 }
 
 std::string Write_to_csv::to_string() {
-    return (graph_name + "," + path + "," + std::to_string(path_weight) + "," + std::to_string(time) + "," + std::to_string(number_of_repeats));
+    std::string ret_val = graph_name + "," + path + "," + std::to_string(path_weight) + "," + std::to_string(time) + "," + std::to_string(number_of_repeats);
+    return ret_val;
 }

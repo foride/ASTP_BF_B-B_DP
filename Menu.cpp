@@ -1,4 +1,6 @@
 #include "Menu.h"
+#include "Dynamic_programming.h"
+#include "BnB.h"
 
 void Menu::show_menu() {
     std::vector<std::vector<int>> init_vector;
@@ -9,12 +11,13 @@ void Menu::show_menu() {
     std::string choice_s;
 
     while (true) {
-        std::cout << "Problem komiwojazera rozwiazywany metoda przegladu zupelnego.\nAutor: Michal Lewandowski #264458\n\n";
+        std::cout << "Problem komiwojazera rozwiazywany metoda B&B i DP.\nAutor: Michal Lewandowski #264458\n\n";
         std::cout << "0 - Wyjdz z programu\n";
         std::cout << "1 - Wczytaj macierz z pliku\n";
         std::cout << "2 - Wygeneruj macierz\n";
         std::cout << "3 - Wyswietl ostatnio wczytana z pliku lub wygenerowana macierz\n";
-        std::cout << "4 - Uruchom przeglad zupleny dla ostatnio wczytanej lub wygenerowanej macierzy i wyswietl wyniki\n";
+        std::cout << "4 - Uruchom algorytm podzialu i ograniczen (B&B) dla ostatnio wczytanej lub wygenerowanej macierzy i wyswietl wyniki\n";
+        std::cout << "5 - Uruchom algorytm programowania dynamicznego (DP) dla ostatnio wczytanej lub wygenerowanej macierzy i wyswietl wyniki\n";
         std::cout << ">";
 
         std::cin >> choice_s;
@@ -49,15 +52,26 @@ void Menu::show_menu() {
                 break;
             case 4:
             {
-                Brute_force bf(graph.getGraph());
+                Dynamic_programming dp(graph.getGraph());
                 auto start = std::chrono::high_resolution_clock::now();
-                bf.perform_brute_force();
+                dp.dp();
                 auto end = std::chrono::high_resolution_clock::now();
                 auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-                std::cout << "Time taken by function: " << duration.count() << " microseconds" << "\n";
-                bf.show_lowest_path();
+                std::cout << "Czas wykonywania algorytmu: " << duration.count() << " mikrosekund" << "\n";
+                dp.show_lowest_path();
+                break;
             }
+            case 5:
+            {
+                BnB bnb(graph.getGraph());
+                auto start = std::chrono::high_resolution_clock::now();
+                bnb.bnb_dfs();
+                auto end = std::chrono::high_resolution_clock::now();
+                auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+                std::cout << "Czas wykonywania algorytmu: " << duration.count() << " mikrosekund" << "\n";
+                bnb.show_lowest_path();
 
+            }
                 break;
             default:
                 std::cout << "Program nie zawiera funkcji dla podanej liczby!\n";
